@@ -50,6 +50,7 @@ import {
   chartExample2,
   chartExample3,
   chartExample4,
+  clusterPowerChart,
 } from "variables/charts.js";
 
 function Dashboard(props) {
@@ -57,6 +58,25 @@ function Dashboard(props) {
   const setBgChartData = (name) => {
     setbigChartData(name);
   };
+
+  const [clusterPowerData, setClusterPowerData] = React.useState({labels: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00",], data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],});
+  console.log(clusterPowerData);
+  React.useEffect(() => {
+    const ws = new WebSocket('ws://34.100.215.16:8000/metrics/power');
+    ws.addEventListener('message', (event) => {
+      let powerData = JSON.parse(event.data);
+      setClusterPowerData(prevClusterPowerData => {
+        const tempClusterPowerData = { ...prevClusterPowerData };
+        tempClusterPowerData.labels.shift();
+        tempClusterPowerData.labels.push(powerData["timestamp"].toString());
+        tempClusterPowerData.data.shift();
+        tempClusterPowerData.data.push(powerData["power"]);
+        return tempClusterPowerData;
+      });
+    });
+    return () => ws.close();
+  },[clusterPowerData]);
+
   return (
     <>
       <div className="content">
@@ -141,8 +161,8 @@ function Dashboard(props) {
               <CardBody>
                 <div className="chart-area">
                   <Line
-                    data={chartExample1[bigChartData]}
-                    options={chartExample1.options}
+                    data={{labels: clusterPowerData.labels, datasets: [Object.assign({}, clusterPowerChart[bigChartData], {data: clusterPowerData.data})]}}
+                    options={clusterPowerChart.options}
                   />
                 </div>
               </CardBody>

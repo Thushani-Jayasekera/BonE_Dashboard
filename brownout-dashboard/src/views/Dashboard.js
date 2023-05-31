@@ -50,32 +50,62 @@ import {
   chartExample2,
   chartExample3,
   chartExample4,
-  clusterPowerChart,
+  clusterChart,
 } from "variables/charts.js";
 
+import { GetTime } from "variables/util.js"
+
 function Dashboard(props) {
-  const [bigChartData, setbigChartData] = React.useState("data1");
-  const setBgChartData = (name) => {
-    setbigChartData(name);
+  const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
+  const setCGLabel = (name) => {
+    setclusterGraphLabel(name);
   };
 
-  const [clusterPowerData, setClusterPowerData] = React.useState({labels: ["00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00", "00:00:00",], data: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],});
-  console.log(clusterPowerData);
+  const [clusterPowerData, setClusterPowerData] = React.useState({
+    labels: clusterChart.powerLabels, 
+    datasets: [Object.assign({}, 
+      clusterChart.power, 
+      clusterChart.properties, 
+      {data: clusterChart.powerData}
+      )],
+    });
+  const setCPData = (data) => {
+    setClusterPowerData(prevClusterPowerData => {
+      const tempClusterPowerData = {
+        labels: [...prevClusterPowerData.labels],
+        datasets: [
+          Object.assign({}, prevClusterPowerData.datasets[0], {
+            data: [...prevClusterPowerData.datasets[0].data],
+          }),
+        ],
+      };
+    
+      tempClusterPowerData.labels.shift();
+      tempClusterPowerData.labels.push(GetTime(data["timestamp"]));
+      tempClusterPowerData.datasets[0].data.shift();
+      tempClusterPowerData.datasets[0].data.push(data["power"]);
+    
+      return tempClusterPowerData;
+    });
+  };
+
   React.useEffect(() => {
-    const ws = new WebSocket('ws://34.100.215.16:8000/metrics/power');
+    const ws = new WebSocket('ws://34.93.128.221:8000/metrics/power');
     ws.addEventListener('message', (event) => {
       let powerData = JSON.parse(event.data);
-      setClusterPowerData(prevClusterPowerData => {
-        const tempClusterPowerData = { ...prevClusterPowerData };
-        tempClusterPowerData.labels.shift();
-        tempClusterPowerData.labels.push(powerData["timestamp"].toString());
-        tempClusterPowerData.data.shift();
-        tempClusterPowerData.data.push(powerData["power"]);
-        return tempClusterPowerData;
-      });
+      setCPData(powerData);
     });
     return () => ws.close();
-  },[clusterPowerData]);
+  },[]);
+
+  const [clusterCPUData, setClusterCPUData] = React.useState({
+    labels: clusterChart.cpuLabels, 
+    datasets: [Object.assign({}, 
+      clusterChart.cpu, 
+      clusterChart.properties, 
+      {data: clusterChart.cpuData}
+      )],
+    });
 
   return (
     <>
@@ -123,12 +153,12 @@ function Dashboard(props) {
                       <Button
                         tag="label"
                         className={classNames("btn-simple", {
-                          active: bigChartData === "data1",
+                          active: clusterGraphLabel === "power",
                         })}
                         color="info"
                         id="0"
                         size="sm"
-                        onClick={() => setBgChartData("data1")}
+                        onClick={() => setCGLabel("power")}
                       >
                         <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
                           Power Consumption
@@ -143,9 +173,9 @@ function Dashboard(props) {
                         size="sm"
                         tag="label"
                         className={classNames("btn-simple", {
-                          active: bigChartData === "data2",
+                          active: clusterGraphLabel === "cpu",
                         })}
-                        onClick={() => setBgChartData("data2")}
+                        onClick={() => setCGLabel("cpu")}
                       >
                         <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
                           CPU Utilization
@@ -161,8 +191,8 @@ function Dashboard(props) {
               <CardBody>
                 <div className="chart-area">
                   <Line
-                    data={{labels: clusterPowerData.labels, datasets: [Object.assign({}, clusterPowerChart[bigChartData], {data: clusterPowerData.data})]}}
-                    options={clusterPowerChart.options}
+                    data={clusterGraphLabel === "power" ? clusterPowerData: clusterCPUData}
+                    options={clusterChart.options}
                   />
                 </div>
               </CardBody>

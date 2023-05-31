@@ -406,23 +406,32 @@ const chartExample4 = {
   },
 };
 
-let clusterPowerChart = {
-  data1: {
-          label: "Cluster Power Consmuption",
-          fill: true,
-          borderColor: "#1f8ef1",
-          borderWidth: 2,
-          borderDash: [],
-          borderDashOffset: 0.0,
-          pointBackgroundColor: "#1f8ef1",
-          pointBorderColor: "rgba(255,255,255,0)",
-          pointHoverBackgroundColor: "#1f8ef1",
-          pointBorderWidth: 20,
-          pointHoverRadius: 4,
-          pointHoverBorderWidth: 15,
-          pointRadius: 4,
-        },
+let clusterChart = {
+  power: {
+    label: "Cluster Power Consmuption (W)",
+  },
+  cpu: {
+    label: "Cluster CPU Consmuption (nc)",
+  },
+  properties: {
+    fill: true,
+    borderColor: "#1f8ef1",
+    borderWidth: 2,
+    borderDash: [],
+    borderDashOffset: 0.0,
+    pointBackgroundColor: "#1f8ef1",
+    pointBorderColor: "rgba(255,255,255,0)",
+    pointHoverBackgroundColor: "#1f8ef1",
+    pointBorderWidth: 20,
+    pointHoverRadius: 4,
+    pointHoverBorderWidth: 15,
+    pointRadius: 4,
+  },
   options: chart1_2_options,
+  powerLabels: Array(20).fill("00:00:00"),
+  powerData: Array(20).fill(0.0),
+  cpuLabels: Array(20).fill("00:00:00"),
+  cpuData: Array(20).fill(0.0),
 };
 
 module.exports = {
@@ -430,5 +439,5 @@ module.exports = {
   chartExample2, // in src/views/Dashboard.js
   chartExample3, // in src/views/Dashboard.js
   chartExample4, // in src/views/Dashboard.js
-  clusterPowerChart,
+  clusterChart,
 };

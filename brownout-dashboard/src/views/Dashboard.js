@@ -172,7 +172,7 @@ function Dashboard(props) {
   };
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/battery');
+    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/battery');
     ws.addEventListener('message', (event) => {
       let batteryData = JSON.parse(event.data);
       setBPData(batteryData);
@@ -181,7 +181,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/power');
+    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/power');
     ws.addEventListener('message', (event) => {
       let powerData = JSON.parse(event.data);
       setCPData(powerData);
@@ -190,7 +190,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/pods');
+    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/pods');
     ws.addEventListener('message', (event) => {
       let podData = JSON.parse(event.data);
       setCCPUData(podData);
@@ -200,7 +200,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/sla');
+    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/sla');
     ws.addEventListener('message', (event) => {
       try {
         let srData = JSON.parse(event.data);
@@ -214,7 +214,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/nodes/list');
+    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/nodes/list');
     ws.addEventListener('message', (event) => {
       let nodeData = JSON.parse(event.data);
       setNC(nodeData);

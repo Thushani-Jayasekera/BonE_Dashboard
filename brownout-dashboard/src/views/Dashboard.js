@@ -1,25 +1,8 @@
-/*!
-
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React from "react";
 // nodejs library that concatenates classes
 import classNames from "classnames";
 // react plugin used to create charts
-import { Line, Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 
 // reactstrap components
 import {
@@ -29,28 +12,16 @@ import {
   CardHeader,
   CardBody,
   CardTitle,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  Label,
-  FormGroup,
-  Input,
-  Table,
   Row,
   Col,
-  UncontrolledTooltip,
-  CardImg,
-  CardText,
 } from "reactstrap";
 
 // core components
 import {
-  chartExample1,
-  chartExample2,
-  chartExample3,
-  chartExample4,
+  batteryChart,
   clusterChart,
+  srChart,
+  requestsChart,
 } from "variables/charts.js";
 
 import { GetTime } from "variables/util.js"
@@ -59,6 +30,37 @@ function Dashboard(props) {
   const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
   const setCGLabel = (name) => {
     setclusterGraphLabel(name);
+  };
+
+  const [podCount, setPodCount] = React.useState(0);
+  const setPC = (data) => {
+    setPodCount(data["count"]);
+  };
+
+  const [nodeCount, setNodeCount] = React.useState(0);
+  const setNC = (data) => {
+    setNodeCount(data["nodes_active"].length);
+  };
+
+  const [batteryPercentage, setBatteryPercentage] = React.useState(batteryChart.chart);
+  const setBPData = (data) => {
+    setBatteryPercentage(prevBatteryData => {
+      const tempBatteryData = {
+        labels: [...prevBatteryData.labels],
+        datasets: [
+          Object.assign({}, prevBatteryData.datasets[0], {
+            data: [...prevBatteryData.datasets[0].data],
+          }),
+        ],
+      };
+    
+      tempBatteryData.labels.shift();
+      tempBatteryData.labels.push(GetTime(data["timestamp"]));
+      tempBatteryData.datasets[0].data.shift();
+      tempBatteryData.datasets[0].data.push(data["battery"]);
+    
+      return tempBatteryData;
+    });
   };
 
   const [clusterPowerData, setClusterPowerData] = React.useState({
@@ -89,15 +91,6 @@ function Dashboard(props) {
     });
   };
 
-  React.useEffect(() => {
-    const ws = new WebSocket('ws://34.93.128.221:8000/metrics/power');
-    ws.addEventListener('message', (event) => {
-      let powerData = JSON.parse(event.data);
-      setCPData(powerData);
-    });
-    return () => ws.close();
-  },[]);
-
   const [clusterCPUData, setClusterCPUData] = React.useState({
     labels: clusterChart.cpuLabels, 
     datasets: [Object.assign({}, 
@@ -106,6 +99,128 @@ function Dashboard(props) {
       {data: clusterChart.cpuData}
       )],
     });
+  const setCCPUData = (data) => {
+    setClusterCPUData(prevClusterCPUData => {
+      const tempClusterCPUData = {
+        labels: [...prevClusterCPUData.labels],
+        datasets: [
+          Object.assign({}, prevClusterCPUData.datasets[0], {
+            data: [...prevClusterCPUData.datasets[0].data],
+          }),
+        ],
+      };
+      
+      tempClusterCPUData.labels.shift();
+      tempClusterCPUData.labels.push(GetTime(data["timestamp"]));
+      tempClusterCPUData.datasets[0].data.shift();
+      tempClusterCPUData.datasets[0].data.push(data["cpu_total"]);
+      
+      return tempClusterCPUData;
+    });
+  };
+
+  const [successRateData, setSuccessRateData] = React.useState(srChart.chart);
+  const setSRData = (data) => {
+    setSuccessRateData(prevSRData => {
+      const tempSRData = {
+        labels: [...prevSRData.labels],
+        datasets: [
+          Object.assign({}, prevSRData.datasets[0], {
+            data: [...prevSRData.datasets[0].data],
+          }),
+        ],
+      };
+    
+      tempSRData.labels.shift();
+      tempSRData.labels.push(GetTime(data["timestamp"]));
+      tempSRData.datasets[0].data.shift();
+      tempSRData.datasets[0].data.push(data["sla_success"]);
+    
+      return tempSRData;
+    });
+  };
+
+  const [requestsData, setRequestsData] = React.useState(requestsChart.chart);
+  const setReqData = (data) => {
+    setRequestsData(prevReqData => {
+      const tempReqData = {
+        labels: [...prevReqData.labels],
+        datasets: [
+          Object.assign({}, prevReqData.datasets[0], {
+            data: [...prevReqData.datasets[0].data], 
+          }),
+          Object.assign({}, prevReqData.datasets[1], {
+            data: [...prevReqData.datasets[1].data], 
+          }),
+          Object.assign({}, prevReqData.datasets[2], {
+            data: [...prevReqData.datasets[2].data], 
+          }),
+        ],
+      };
+    
+      tempReqData.labels.shift();
+      tempReqData.labels.push(GetTime(data["timestamp"]));
+      tempReqData.datasets[0].data.shift();
+      tempReqData.datasets[0].data.push(data["tot_req"]);
+      tempReqData.datasets[1].data.shift();
+      tempReqData.datasets[1].data.push(data["slow_req"]);
+      tempReqData.datasets[2].data.shift();
+      tempReqData.datasets[2].data.push(data["err_req"]);
+    
+      return tempReqData;
+    });
+  };
+
+  React.useEffect(() => {
+    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/battery');
+    ws.addEventListener('message', (event) => {
+      let batteryData = JSON.parse(event.data);
+      setBPData(batteryData);
+    });
+    return () => ws.close();
+  },[]);
+
+  React.useEffect(() => {
+    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/power');
+    ws.addEventListener('message', (event) => {
+      let powerData = JSON.parse(event.data);
+      setCPData(powerData);
+    });
+    return () => ws.close();
+  },[]);
+
+  React.useEffect(() => {
+    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/pods');
+    ws.addEventListener('message', (event) => {
+      let podData = JSON.parse(event.data);
+      setCCPUData(podData);
+      setPC(podData);
+    });
+    return () => ws.close();
+  },[]);
+
+  React.useEffect(() => {
+    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/sla');
+    ws.addEventListener('message', (event) => {
+      try {
+        let srData = JSON.parse(event.data);
+        setSRData(srData);
+        setReqData(srData);
+      } catch (error) {
+        console.log("Error parsing JSON:", error);
+      }
+    });
+    return () => ws.close();
+  },[]);
+
+  React.useEffect(() => {
+    const ws = new WebSocket('ws://34.93.46.182:8000/metrics/nodes/list');
+    ws.addEventListener('message', (event) => {
+      let nodeData = JSON.parse(event.data);
+      setNC(nodeData);
+    });
+    return () => ws.close();
+  },[]);
 
   return (
     <>
@@ -120,19 +235,37 @@ function Dashboard(props) {
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>
                 <CardTitle>Battery Percentage</CardTitle>
-                <Button color="danger" style={{alignContent:'center', alignItems:'center'}}>5%</Button>
+                <Button color="danger" style={{alignContent:'center', alignItems:'center'}}>{batteryPercentage.datasets[0].data[batteryPercentage.datasets[0].data.length - 1]} %</Button>
             </CardBody>
         </Card>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>
                 <CardTitle>Current Power Consumption</CardTitle>
-                <Button color="info" style={{alignContent:'center', alignItems:'center'}}>343</Button>
+                <Button color="info" style={{alignContent:'center', alignItems:'center'}}>{clusterPowerData.datasets[0].data[clusterPowerData.datasets[0].data.length - 1].toFixed(2)} W</Button>
             </CardBody>
         </Card>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>
-                <CardTitle>Current CPU Util.</CardTitle>
-                <Button color="info" style={{alignContent:'center', alignItems:'center'}}>434</Button>
+                <CardTitle>Current Continer CPU Util. Sum</CardTitle>
+                <Button color="info" style={{alignContent:'center', alignItems:'center'}}>{clusterCPUData.datasets[0].data[clusterCPUData.datasets[0].data.length - 1].toFixed(2)} nc</Button>
+            </CardBody>
+        </Card>
+        <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
+            <CardBody>
+                <CardTitle>Current Success Rate</CardTitle>
+                <Button color="info" style={{alignContent:'center', alignItems:'center'}}>{successRateData.datasets[0].data[successRateData.datasets[0].data.length - 1].toFixed(2)} %</Button>
+            </CardBody>
+        </Card>
+        <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
+            <CardBody>
+                <CardTitle>Active Pod Count</CardTitle>
+                <Button color="info" style={{alignContent:'center', alignItems:'center'}}>{podCount}</Button>
+            </CardBody>
+        </Card>
+        <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
+            <CardBody>
+                <CardTitle>Active Node Count</CardTitle>
+                <Button color="info" style={{alignContent:'center', alignItems:'center'}}>{nodeCount}</Button>
             </CardBody>
         </Card>
         </Row>
@@ -178,7 +311,7 @@ function Dashboard(props) {
                         onClick={() => setCGLabel("cpu")}
                       >
                         <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          CPU Utilization
+                          Cluster CPU Utilization
                         </span>
                         <span className="d-block d-sm-none">
                           <i className="tim-icons icon-gift-2" />
@@ -213,8 +346,8 @@ function Dashboard(props) {
               <CardBody>
                 <div className="chart-area">
                   <Line
-                    data={chartExample4.data}
-                    options={chartExample4.options}
+                    data={successRateData}
+                    options={srChart.options}
                   />
                 </div>
               </CardBody>
@@ -223,17 +356,17 @@ function Dashboard(props) {
           <Col lg="12">
             <Card className="card-chart">
               <CardHeader>
-                <h5 className="card-category">Current Power Consumption</h5>
+                <h5 className="card-category">Number of Requests</h5>
                 <CardTitle tag="h3">
                   <i className="tim-icons icon-delivery-fast text-primary" />{" "}
-                  Node-wise Power Consumption
+                  Total, Slow and Error Requests
                 </CardTitle>
               </CardHeader>
               <CardBody>
                 <div className="chart-area">
-                  <Bar
-                    data={chartExample3.data}
-                    options={chartExample3.options}
+                  <Line
+                    data={requestsData}
+                    options={requestsChart.options}
                   />
                 </div>
               </CardBody>
@@ -242,84 +375,19 @@ function Dashboard(props) {
           <Col lg="12">
             <Card className="card-chart">
               <CardHeader>
-                <h5 className="card-category">Current CPU Utilization</h5>
+                <h5 className="card-category">Battery</h5>
                 <CardTitle tag="h3">
                   <i className="tim-icons icon-delivery-fast text-primary" />{" "}
-                  Node-wise CPU Utilization
+                  Battery Percentage
                 </CardTitle>
               </CardHeader>
               <CardBody>
                 <div className="chart-area">
-                  <Bar
-                    data={chartExample3.data}
-                    options={chartExample3.options}
+                  <Line
+                    data={batteryPercentage}
+                    options={batteryChart.options}
                   />
                 </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg="12" md="12">
-            <Card>
-              <CardHeader>
-                <CardTitle tag="h4">Pod List</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <Table className="tablesorter" responsive>
-                  <thead className="text-primary">
-                    <tr>
-                      <th>Pod Name</th>
-                      <th>Node</th>
-                      <th>Current Power Consumption</th>
-                      <th className="text-center">Current CPU Util.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Dakota Rice</td>
-                      <td>Niger</td>
-                      <td>Oud-Turnhout</td>
-                      <td className="text-center">$36,738</td>
-                    </tr>
-                    <tr>
-                      <td>Minerva Hooper</td>
-                      <td>Curaçao</td>
-                      <td>Sinaai-Waas</td>
-                      <td className="text-center">$23,789</td>
-                    </tr>
-                    <tr>
-                      <td>Sage Rodriguez</td>
-                      <td>Netherlands</td>
-                      <td>Baileux</td>
-                      <td className="text-center">$56,142</td>
-                    </tr>
-                    <tr>
-                      <td>Philip Chaney</td>
-                      <td>Korea, South</td>
-                      <td>Overland Park</td>
-                      <td className="text-center">$38,735</td>
-                    </tr>
-                    <tr>
-                      <td>Doris Greene</td>
-                      <td>Malawi</td>
-                      <td>Feldkirchen in Kärnten</td>
-                      <td className="text-center">$63,542</td>
-                    </tr>
-                    <tr>
-                      <td>Mason Porter</td>
-                      <td>Chile</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$78,615</td>
-                    </tr>
-                    <tr>
-                      <td>Jon Porter</td>
-                      <td>Portugal</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$98,615</td>
-                    </tr>
-                  </tbody>
-                </Table>
               </CardBody>
             </Card>
           </Col>

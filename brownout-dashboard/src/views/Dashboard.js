@@ -134,7 +134,7 @@ function Dashboard(props) {
       tempSRData.labels.shift();
       tempSRData.labels.push(GetTime(data["timestamp"]));
       tempSRData.datasets[0].data.shift();
-      tempSRData.datasets[0].data.push(data["sla_success"]);
+      tempSRData.datasets[0].data.push(data["sla_success"] * 100);
     
       return tempSRData;
     });

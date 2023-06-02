@@ -102,7 +102,7 @@ const srChart = {
     labels: Array(20).fill("00:00:00"),
     datasets: [
       {
-        label: "Success Rate",
+        label: "Success Rate (%)",
         fill: true,
         borderColor: "#00d6b4",
         borderWidth: 2,

@@ -50,7 +50,7 @@ import axios from 'axios';
 
 function Configure() {
 
-  const NORMAL_API_URL = "http://34.100.190.209:8000";
+  const NORMAL_API_URL = "http://34.100.218.112:8000";
 
   const [asr, setASR] = React.useState(0);
   const [asrModalOpen, setASRModalOpen] = React.useState(false);

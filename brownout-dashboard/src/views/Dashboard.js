@@ -29,8 +29,8 @@ import axios from 'axios';
 
 function Dashboard(props) {
 
-  const API_URL = "ws://34.100.218.112:8000";
-  const NORMAL_API_URL = "http://34.100.218.112:8000";
+  const API_URL = "ws://34.100.190.209:8000";
+  const NORMAL_API_URL = "http://34.100.190.209:8000";
   const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
   const setCGLabel = (name) => {
     setclusterGraphLabel(name);
@@ -197,7 +197,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket(`${API_URL}/pods`);
+    const ws = new WebSocket(`${API_URL}/metrics/pods`);
     ws.addEventListener('message', (event) => {
       let podData = JSON.parse(event.data);
       setCCPUData(podData);
@@ -234,7 +234,7 @@ function Dashboard(props) {
     const fetchData = async () => {
       try {
         const asrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/asr`);
-        const asr = asrResponse.body;
+        const asr = asrResponse.data;
         console.log(asr);
         setASR(asr);
       } catch (error) {
@@ -250,7 +250,7 @@ function Dashboard(props) {
     const fetchData = async () => {
       try {
         const amsrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/amsr`);
-        const amsr = amsrResponse.body;
+        const amsr = amsrResponse.data;
         console.log(amsr);
         setMASR(amsr);
       } catch (error) {

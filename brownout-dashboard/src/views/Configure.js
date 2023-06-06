@@ -50,7 +50,7 @@ import axios from 'axios';
 
 function Configure() {
 
-  const NORMAL_API_URL = "http://34.100.218.112:8000";
+  const NORMAL_API_URL = "http://34.100.190.209:8000";
 
   const [asr, setASR] = React.useState(0);
   const [asrModalOpen, setASRModalOpen] = React.useState(false);
@@ -88,27 +88,27 @@ function Configure() {
   };
 
   const toggleMASRModal = () => {
-    setASRModalOpen(!asrModalOpen);
+    setMASRModalOpen(!asrModalOpen);
   };
 
   const togglePolicyModal = () => {
-    setASRModalOpen(!asrModalOpen);
+    setPolicyModalOpen(!asrModalOpen);
   };
 
   const toggleUBModal = () => {
-    setASRModalOpen(!asrModalOpen);
+    setUpperBatteryModalOpen(!asrModalOpen);
   };
 
   const toggleLBModal = () => {
-    setASRModalOpen(!asrModalOpen);
+    setLowerBatteryModalOpen(!asrModalOpen);
   };
 
   const toggleSLALatencyModal = () => {
-    setASRModalOpen(!asrModalOpen);
+    setSLAViolationLatencyModalOpen(!asrModalOpen);
   };
 
   const toggleSLAIntervalModal = () => {
-    setASRModalOpen(!asrModalOpen);
+    setSLAIntervaModalOpen(!asrModalOpen);
   };
 
   // get ASR & AMSR value
@@ -116,8 +116,8 @@ function Configure() {
     const fetchData = async () => {
       try {
         const asrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/asr`);
-        const asr = asrResponse.body;
-        console.log(asr);
+        const asr = asrResponse.data;
+        formValues.asr = asr;
         setASR(asr);
       } catch (error) {
         console.error('error',error);
@@ -132,8 +132,8 @@ function Configure() {
     const fetchData = async () => {
       try {
         const amsrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/amsr`);
-        const amsr = amsrResponse.body;
-        console.log(amsr);
+        const amsr = amsrResponse.data;
+        formValues.masr = amsr;
         setMASR(amsr);
       } catch (error) {
         console.error('error',error);
@@ -148,8 +148,8 @@ function Configure() {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/policy`);
-        const policy = response.body;
-        console.log(policy);
+        const policy = response.data;
+        formValues.policy = policy;
         setPolicy(policy);
       } catch (error) {
         console.error('error',error);
@@ -164,8 +164,8 @@ function Configure() {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/batteryUpper`);
-        const batteryUpper = response.body;
-        console.log(batteryUpper);
+        const batteryUpper = response.data;
+        formValues.batteryUpper = batteryUpper;
         setBatteryUpper(batteryUpper);
       } catch (error) {
         console.error('error',error);
@@ -180,8 +180,8 @@ function Configure() {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/batteryLower`);
-        const batteryLower = response.body;
-        console.log(batteryLower);
+        const batteryLower = response.data;
+        formValues.batteryLower = batteryLower;
         setBatteryLower(batteryLower);
       } catch (error) {
         console.error('error',error);
@@ -196,8 +196,8 @@ function Configure() {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/slaViolationLatency`);
-        const slaViolationLatency = response.body;
-        console.log(slaViolationLatency);
+        const slaViolationLatency = response.data;
+        formValues.slaViolationLatency = slaViolationLatency;
         setSLAViolationLatency(slaViolationLatency);
       } catch (error) {
         console.error('error',error);
@@ -212,8 +212,8 @@ function Configure() {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/slaInterval`);
-        const slaInterval = response.body;
-        console.log(slaInterval);
+        const slaInterval = response.data;
+        formValues.slaInterval = slaInterval;
         setSLAInterval(slaInterval);
       } catch (error) {
         console.error('error',error);
@@ -223,77 +223,77 @@ function Configure() {
     return
   },[]);
 
-  const submitASR = async (newASR) => {
+  const submitASR = async (event, newASR) => {
     try {
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/asr`, { value: newASR } )
+      event.preventDefault();
+      await axios.post(`${NORMAL_API_URL}/brownout/variables/asr`, { 'value': newASR } )
       setASR(newASR);
-      console.log("success");
       setASRModalOpen(false);
     } catch (error) {
       console.log(error)
     }
   }
 
-  const submitMASR = async (newMASR) => {
+  const submitMASR = async (event, newMASR) => {
     try {
+      event.preventDefault();
       await axios.post(`${NORMAL_API_URL}/brownout/variables/masr`, { value: newMASR } )
       setMASR(newMASR);
-      console.log("success");
       setMASRModalOpen(false);
     } catch (error) {
       console.log(error)
     }
   }
 
-  const submitPolicy = async (newPolicy) => {
+  const submitPolicy = async (event, newPolicy) => {
     try {
+      event.preventDefault();
       await axios.post(`${NORMAL_API_URL}/brownout/variables/policy`, { value: newPolicy } )
       setMASR(newPolicy);
-      console.log("success");
       setPolicyModalOpen(false);
     } catch (error) {
       console.log(error)
     }
   }
 
-  const submitBatteryUpper = async (newBattery) => {
+  const submitBatteryUpper = async (event, newBattery) => {
     try {
+      event.preventDefault();
       await axios.post(`${NORMAL_API_URL}/brownout/variables/batteryUpper`, { value: newBattery } )
       setBatteryUpper(newBattery);
-      console.log("success");
       setUpperBatteryModalOpen(false);
     } catch (error) {
       console.log(error)
     }
   }
 
-  const submitSLAViolationLatency = async (newSLA) => {
+  const submitSLAViolationLatency = async (event, newSLA) => {
     try {
+      event.preventDefault();
       await axios.post(`${NORMAL_API_URL}/brownout/variables/slaViolationLatency`, { value: newSLA } )
       setSLAViolationLatency(newSLA);
-      console.log("success");
       setSLAViolationLatencyModalOpen(false);
     } catch (error) {
       console.log(error)
     }
   }
 
-  const submitSLAInterval = async (newSLA) => {
+  const submitSLAInterval = async (event, newSLA) => {
     try {
+      event.preventDefault();
       await axios.post(`${NORMAL_API_URL}/brownout/variables/slaInterval`, { value: newSLA } )
       setSLAInterval(newSLA);
-      console.log("success");
       setSLAIntervaModalOpen(false);
     } catch (error) {
       console.log(error)
     }
   }
 
-  const submitBatteryLower = async (newBattery) => {
+  const submitBatteryLower = async (event, newBattery) => {
     try {
+      event.preventDefault();
       await axios.post(`${NORMAL_API_URL}/brownout/variables/batteryLower`, { value: newBattery } )
-      setBatteryUpper(newBattery);
-      console.log("success");
+      setBatteryLower(newBattery);
       setLowerBatteryModalOpen(false);
     } catch (error) {
       console.log(error)
@@ -378,6 +378,7 @@ function Configure() {
                             id="tooltip636901683"
                             title=""
                             type="button"
+                            onClick={togglePolicyModal}
                           >
                             <i className="tim-icons icon-pencil" />
                           </Button>
@@ -389,6 +390,23 @@ function Configure() {
                             Change
                           </UncontrolledTooltip>
                         </td>
+                        <Modal isOpen={policyModalOpen} toggle={togglePolicyModal} title="change Policy"  modalClassName="modal-info">
+                            <ModalHeader toggle={togglePolicyModal}>Edit Policy Used</ModalHeader>
+                            <ModalBody>
+                    
+                              <Form>
+                                <Input type="text" name="policy" value={formValues.policy} onChange={(event) => {
+                                  setFormValues({...formValues, policy: event.target.value })
+                                }} color="black"
+                                /> 
+                                <Button onClick={(event) =>submitPolicy(event, formValues.policy)}> Change </Button>
+                              </Form>
+                            </ModalBody>
+                            <ModalFooter>
+                            
+                            </ModalFooter>
+                        </Modal>
+
                       </tr>
                       <tr>
                         <td>
@@ -423,15 +441,15 @@ function Configure() {
                             Change
                           </UncontrolledTooltip>
                         </td>
-                        <Modal isOpen={asrModalOpen} toggle={toggleASRModal} title="change ASR">
-                            <ModalHeader toggle={toggleASRModal}>EDIT ASR</ModalHeader>
+                        <Modal isOpen={asrModalOpen} toggle={toggleASRModal} title="change ASR"  modalClassName="modal-info">
+                            <ModalHeader toggle={toggleASRModal}>Edit ASR Value</ModalHeader>
                             <ModalBody>
                               <Form>
-                                <input type="text" name="asr" value={formValues.asr} onChange={(event) => {
+                                <Input type="text" name="asr" value={formValues.asr} onChange={(event) => {
                                   setFormValues({...formValues, asr: event.target.value })
-                                }}
-                                />  
-                                <button onClick={submitASR(formValues.asr)}> Change </button>
+                                }} color="black"
+                                /> 
+                                <Button onClick={(event) =>submitASR(event, formValues.asr)}> Change </Button>
                               </Form>
                             </ModalBody>
                             <ModalFooter>
@@ -460,6 +478,7 @@ function Configure() {
                             id="tooltip636901683"
                             title=""
                             type="button"
+                            onClick={toggleMASRModal}
                           >
                             <i className="tim-icons icon-pencil" />
                           </Button>
@@ -471,6 +490,21 @@ function Configure() {
                             Change
                           </UncontrolledTooltip>
                         </td>
+                        <Modal isOpen={masrModalOpen} toggle={toggleMASRModal} title="change MASR"  modalClassName="modal-info">
+                            <ModalHeader toggle={toggleMASRModal}>Edit ASR Value</ModalHeader>
+                            <ModalBody>
+                              <Form>
+                                <Input type="text" name="masr" value={formValues.masr} onChange={(event) => {
+                                  setFormValues({...formValues, masr: event.target.value })
+                                }} color="black"
+                                /> 
+                                <Button onClick={(event) =>submitMASR(event, formValues.masr)}> Change </Button>
+                              </Form>
+                            </ModalBody>
+                            <ModalFooter>
+                            
+                            </ModalFooter>
+                        </Modal>
                       </tr>
                       <tr>
                         <td>
@@ -494,6 +528,7 @@ function Configure() {
                             id="tooltip636901683"
                             title=""
                             type="button"
+                            onClick={toggleSLALatencyModal}
                           >
                             <i className="tim-icons icon-pencil" />
                           </Button>
@@ -505,6 +540,21 @@ function Configure() {
                             Change
                           </UncontrolledTooltip>
                         </td>
+                        <Modal isOpen={slaViolationLatencyModalOpen} toggle={toggleSLALatencyModal} title="change SLA Latency Time"  modalClassName="modal-info">
+                            <ModalHeader toggle={toggleSLALatencyModal}>Edit SLA Latency Time</ModalHeader>
+                            <ModalBody>
+                              <Form>
+                                <Input type="text" name="slalatency" value={formValues.slaViolationLatency} onChange={(event) => {
+                                  setFormValues({...formValues, slaViolationLatency: event.target.value })
+                                }} color="black"
+                                /> 
+                                <Button onClick={(event) =>submitSLAViolationLatency(event, formValues.slaViolationLatency)}> Change </Button>
+                              </Form>
+                            </ModalBody>
+                            <ModalFooter>
+                            
+                            </ModalFooter>
+                        </Modal>
                       </tr>
                       <tr>
                         <td>
@@ -527,6 +577,7 @@ function Configure() {
                             id="tooltip636901683"
                             title=""
                             type="button"
+                            onClick={toggleSLAIntervalModal}
                           >
                             <i className="tim-icons icon-pencil" />
                           </Button>
@@ -538,6 +589,21 @@ function Configure() {
                             Change
                           </UncontrolledTooltip>
                         </td>
+                        <Modal isOpen={slaIntervalModalOpen} toggle={toggleSLAIntervalModal} title="change SLA Latency Interval"  modalClassName="modal-info">
+                            <ModalHeader toggle={toggleSLAIntervalModal}>Edit SLA Latency Interval</ModalHeader>
+                            <ModalBody>
+                              <Form>
+                                <Input type="text" name="slalatency" value={formValues.slaInterval} onChange={(event) => {
+                                  setFormValues({...formValues, slaInterval: event.target.value })
+                                }} color="black"
+                                /> 
+                                <Button onClick={(event) =>submitSLAInterval(event, formValues.slaInterval)}> Change </Button>
+                              </Form>
+                            </ModalBody>
+                            <ModalFooter>
+                            
+                            </ModalFooter>
+                        </Modal>
                       </tr>
                       <tr>
                         <td>
@@ -561,6 +627,7 @@ function Configure() {
                             id="tooltip636901683"
                             title=""
                             type="button"
+                            onClick={toggleLBModal}
                           >
                             <i className="tim-icons icon-pencil" />
                           </Button>
@@ -572,6 +639,21 @@ function Configure() {
                             Change
                           </UncontrolledTooltip>
                         </td>
+                        <Modal isOpen={batteryLowerModalOpen} toggle={toggleLBModal} title="change Low Battery Threshold"  modalClassName="modal-info">
+                            <ModalHeader toggle={toggleLBModal}>Edit Low Battery Threshold</ModalHeader>
+                            <ModalBody>
+                              <Form>
+                                <Input type="text" name="batteryLower" value={formValues.batteryLower} onChange={(event) => {
+                                  setFormValues({...formValues, batteryLower: event.target.value })
+                                }} color="black"
+                                /> 
+                                <Button onClick={(event) =>submitSLAInterval(event, formValues.batteryLower)}> Change </Button>
+                              </Form>
+                            </ModalBody>
+                            <ModalFooter>
+                            
+                            </ModalFooter>
+                        </Modal>
                       </tr>
                       <tr>
                         <td>
@@ -594,6 +676,7 @@ function Configure() {
                             id="tooltip636901683"
                             title=""
                             type="button"
+                            onClick={toggleUBModal}
                           >
                             <i className="tim-icons icon-pencil" />
                           </Button>
@@ -605,6 +688,21 @@ function Configure() {
                             Change
                           </UncontrolledTooltip>
                         </td>
+                        <Modal isOpen={batteryUpperModalOpen} toggle={toggleUBModal} title="change High Battery Threshold"  modalClassName="modal-info">
+                            <ModalHeader toggle={toggleUBModal}>Edit High Battery Threshold</ModalHeader>
+                            <ModalBody>
+                              <Form>
+                                <Input type="text" name="batteryUpper" value={formValues.batteryUpper} onChange={(event) => {
+                                  setFormValues({...formValues, batteryUpper: event.target.value })
+                                }} color="black"
+                                /> 
+                                <Button onClick={(event) =>submitSLAInterval(event, formValues.batteryUpper)}> Change </Button>
+                              </Form>
+                            </ModalBody>
+                            <ModalFooter>
+                            
+                            </ModalFooter>
+                        </Modal>
                       </tr>
                     </tbody>
                   </Table>

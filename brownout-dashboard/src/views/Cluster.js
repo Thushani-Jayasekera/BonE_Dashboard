@@ -36,7 +36,7 @@ function Cluster() {
   };
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/nodes/list');
+    const ws = new WebSocket('ws://34.100.253.127:8000/metrics/nodes/list');
     ws.addEventListener('message', (event) => {
       let nodeData = JSON.parse(event.data);
       setNodeData(nodeData);
@@ -45,7 +45,7 @@ function Cluster() {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/deployments');
+    const ws = new WebSocket('ws://34.100.253.127:8000/metrics/deployments');
     ws.addEventListener('message', (event) => {
       let depData = JSON.parse(event.data);
       setDeploymentData(depData)

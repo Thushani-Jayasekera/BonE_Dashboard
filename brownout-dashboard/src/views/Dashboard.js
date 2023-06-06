@@ -24,9 +24,13 @@ import {
   requestsChart,
 } from "variables/charts.js";
 
-import { GetTime } from "variables/util.js"
+import { GetTime } from "variables/util.js";
+import axios from 'axios';
 
 function Dashboard(props) {
+
+  const API_URL = "ws://34.100.218.112:8000";
+  const NORMAL_API_URL = "http://34.100.218.112:8000";
   const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
   const setCGLabel = (name) => {
     setclusterGraphLabel(name);
@@ -36,6 +40,9 @@ function Dashboard(props) {
   const setPC = (data) => {
     setPodCount(data["count"]);
   };
+
+  const [asr, setASR] = React.useState(0);
+  const [masr, setMASR] = React.useState(0);
 
   const [nodeCount, setNodeCount] = React.useState(0);
   const setNC = (data) => {
@@ -172,7 +179,7 @@ function Dashboard(props) {
   };
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/battery');
+    const ws = new WebSocket(`${API_URL}/metrics/battery`);
     ws.addEventListener('message', (event) => {
       let batteryData = JSON.parse(event.data);
       setBPData(batteryData);
@@ -181,7 +188,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/power');
+    const ws = new WebSocket(`${API_URL}/metrics/power`);
     ws.addEventListener('message', (event) => {
       let powerData = JSON.parse(event.data);
       setCPData(powerData);
@@ -190,7 +197,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/pods');
+    const ws = new WebSocket(`${API_URL}/pods`);
     ws.addEventListener('message', (event) => {
       let podData = JSON.parse(event.data);
       setCCPUData(podData);
@@ -200,7 +207,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/sla');
+    const ws = new WebSocket(`${API_URL}/metrics/sla`);
     ws.addEventListener('message', (event) => {
       try {
         let srData = JSON.parse(event.data);
@@ -214,13 +221,47 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/nodes/list');
+    const ws = new WebSocket(`${API_URL}/metrics/nodes/list`);
     ws.addEventListener('message', (event) => {
       let nodeData = JSON.parse(event.data);
       setNC(nodeData);
     });
     return () => ws.close();
   },[]);
+
+  // get ASR & AMSR value
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const asrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/asr`);
+        const asr = asrResponse.body;
+        console.log(asr);
+        setASR(asr);
+      } catch (error) {
+        console.error('error',error);
+      }
+    }
+    fetchData();
+    return
+
+  },[]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const amsrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/amsr`);
+        const amsr = amsrResponse.body;
+        console.log(amsr);
+        setMASR(amsr);
+      } catch (error) {
+        console.error('error',error);
+      }
+    }
+    fetchData();
+    return
+  },[]);
+
+
 
   return (
     <>
@@ -338,9 +379,9 @@ function Dashboard(props) {
               <CardHeader>
                 <h5 className="card-category">Success Rate</h5>
                 <CardTitle tag="h3">
-                  <i className="tim-icons icon-send text-success" /> ASR  - 70%  
+                  <i className="tim-icons icon-send text-success" /> ASR  - {asr}
                   <br/>
-                  <i className="tim-icons icon-send text-success" /> MASR - 60%
+                  <i className="tim-icons icon-send text-success" /> MASR - {masr}
                 </CardTitle>
               </CardHeader>
               <CardBody>

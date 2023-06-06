@@ -14,6 +14,7 @@ import {
   CardTitle,
   Row,
   Col,
+  ButtonToggle,
 } from "reactstrap";
 
 // core components
@@ -24,8 +25,11 @@ import {
   requestsChart,
 } from "variables/charts.js";
 
+import Toggle from 'react-styled-toggle';
+
 import { GetTime } from "variables/util.js";
 import axios from 'axios';
+import ToggleSwitch from "components/ToggleSwitch/ToggleSwitch";
 
 function Dashboard(props) {
 
@@ -43,6 +47,7 @@ function Dashboard(props) {
 
   const [asr, setASR] = React.useState(0);
   const [masr, setMASR] = React.useState(0);
+  const [running, setRunning] = React.useState(false);
 
   const [nodeCount, setNodeCount] = React.useState(0);
   const setNC = (data) => {
@@ -261,7 +266,20 @@ function Dashboard(props) {
     return
   },[]);
 
-
+  React.useEffect(()=> {
+    const fetchData = async () => {
+      try {
+        const brownoutResponse = await axios.get(`${NORMAL_API_URL}/`);
+        console.log(brownoutResponse)
+        const state = brownoutResponse.data;
+        setRunning(state);
+      } catch (error) {
+        console.error('error',error);
+      }
+    }
+    fetchData();
+    return
+  });
 
   return (
     <>
@@ -270,7 +288,13 @@ function Dashboard(props) {
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>
                 <CardTitle>Brownout Controller</CardTitle>
-                <Button color="success" style={{alignContent:'center', alignItems:'center'}}>Running</Button>
+                <ToggleSwitch />
+            </CardBody>
+        </Card>
+        <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
+            <CardBody>
+                <CardTitle>Brownout Controller</CardTitle>
+                <Button color="success" style={{alignContent:'center', alignItems:'center'}}>{running}</Button>
             </CardBody>
         </Card>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>

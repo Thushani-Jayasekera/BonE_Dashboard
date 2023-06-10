@@ -33,8 +33,8 @@ import { master_ip, port } from "../config/config";
 
 function Dashboard() {
 
-  const API_URL = `ws://${master_ip}:${port}`;
-  const NORMAL_API_URL = `http://${master_ip}:${port}`;
+  const WS_API_URL = `ws://${master_ip}:${port}`;
+  const HTTP_API_URL = `http://${master_ip}:${port}`;
   const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
   const setCGLabel = (name) => {
     setclusterGraphLabel(name);
@@ -48,6 +48,12 @@ function Dashboard() {
   const [asr, setASR] = React.useState(0);
   const [masr, setMASR] = React.useState(0);
   const [running, setRunning] = React.useState(false);
+  const setBStatus = (data) => {
+    setRunning(prevRunningData => {
+      const tempRunningData = data['brownout_active'];
+      return tempRunningData;
+    });
+  };
 
   const [nodeCount, setNodeCount] = React.useState(0);
   const setNC = (data) => {
@@ -184,7 +190,7 @@ function Dashboard() {
   };
 
   React.useEffect(() => {
-    const ws = new WebSocket(`${API_URL}/metrics/battery`);
+    const ws = new WebSocket(`${WS_API_URL}/metrics/battery`);
     ws.addEventListener('message', (event) => {
       let batteryData = JSON.parse(event.data);
       setBPData(batteryData);
@@ -193,7 +199,7 @@ function Dashboard() {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket(`${API_URL}/metrics/power`);
+    const ws = new WebSocket(`${WS_API_URL}/metrics/power`);
     ws.addEventListener('message', (event) => {
       let powerData = JSON.parse(event.data);
       setCPData(powerData);
@@ -202,7 +208,7 @@ function Dashboard() {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket(`${API_URL}/metrics/pods`);
+    const ws = new WebSocket(`${WS_API_URL}/metrics/pods`);
     ws.addEventListener('message', (event) => {
       let podData = JSON.parse(event.data);
       setCCPUData(podData);
@@ -212,7 +218,7 @@ function Dashboard() {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket(`${API_URL}/metrics/sla`);
+    const ws = new WebSocket(`${WS_API_URL}/metrics/sla`);
     ws.addEventListener('message', (event) => {
       try {
         let srData = JSON.parse(event.data);
@@ -226,7 +232,7 @@ function Dashboard() {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket(`${API_URL}/metrics/nodes/list`);
+    const ws = new WebSocket(`${WS_API_URL}/metrics/nodes/list`);
     ws.addEventListener('message', (event) => {
       let nodeData = JSON.parse(event.data);
       setNC(nodeData);
@@ -238,7 +244,7 @@ function Dashboard() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const asrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/asr`);
+        const asrResponse = await axios.get(`${HTTP_API_URL }/brownout/variables/asr`);
         const asr = asrResponse.data;
         console.log(asr);
         setASR(asr);
@@ -254,7 +260,7 @@ function Dashboard() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const amsrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/amsr`);
+        const amsrResponse = await axios.get(`${HTTP_API_URL }/brownout/variables/amsr`);
         const amsr = amsrResponse.data;
         console.log(amsr);
         setMASR(amsr);
@@ -266,20 +272,14 @@ function Dashboard() {
     return
   },[]);
 
-  React.useEffect(()=> {
-    const fetchData = async () => {
-      try {
-        const brownoutResponse = await axios.get(`${NORMAL_API_URL}/`);
-        console.log(brownoutResponse)
-        const state = brownoutResponse.data;
-        setRunning(state);
-      } catch (error) {
-        console.error('error',error);
-      }
-    }
-    fetchData();
-    return
-  });
+  React.useEffect(() => {
+    const ws = new WebSocket(`${WS_API_URL}/brownout/status`);
+    ws.addEventListener('message', (event) => {
+      let brownoutData = JSON.parse(event.data);
+      setBStatus(brownoutData);
+    });
+    return () => ws.close();
+  },[]);
 
   const [color, setcolor] = React.useState("navbar-transparent");
 
@@ -295,8 +295,8 @@ function Dashboard() {
         </Card>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>
-                <CardTitle>Brownout Controller</CardTitle>
-                <Button color="success" style={{alignContent:'center', alignItems:'center'}}>{running}</Button>
+                <CardTitle>Brownout Status</CardTitle>
+                <Button color="success" style={{alignContent:'center', alignItems:'center'}}>{ running ? "Running" : "Stopped"}</Button>
             </CardBody>
         </Card>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>

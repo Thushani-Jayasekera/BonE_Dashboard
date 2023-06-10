@@ -6,25 +6,24 @@ import { master_ip, port } from "config/config";
 const ToggleSwitch = () => {
 
   const HTTP_API_URL = `http://${master_ip}:${port}`;
+  const WS_API_URL = `ws://${master_ip}:${port}`;
 
   const [isOn, setIsOn] = React.useState(false);
+  const setBStatus = (data) => {
+    setIsOn(prevRunningData => {
+      const tempRunningData = data['brownout_active'];
+      return tempRunningData;
+    });
+  };
 
-  React.useEffect(()=> {
-    const fetchData = async () => {
-      try {
-        // TODO
-        const brownoutResponse = await axios.get(`${HTTP_API_URL}/`);
-        console.log(brownoutResponse)
-        const state = brownoutResponse.data;
-        setIsOn(true);
-      } catch (error) {
-        console.error('error',error);
-      }
-    }
-    fetchData();
-    return
-  });
-
+  React.useEffect(() => {
+    const ws = new WebSocket(`${WS_API_URL}/brownout/status`);
+    ws.addEventListener('message', (event) => {
+      let brownoutData = JSON.parse(event.data);
+      setBStatus(brownoutData);
+    });
+    return () => ws.close();
+  },[]);
 
   const handleToggle = () => {
     setIsOn(!isOn);

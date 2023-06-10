@@ -12,6 +12,7 @@ const ToggleSwitch = () => {
   React.useEffect(()=> {
     const fetchData = async () => {
       try {
+        // TODO
         const brownoutResponse = await axios.get(`${HTTP_API_URL}/`);
         console.log(brownoutResponse)
         const state = brownoutResponse.data;
@@ -36,9 +37,10 @@ const ToggleSwitch = () => {
 
   const handleSwitchOn = async () => {
     try{
-        await axios.post(`${HTTP_API_URL}/activate`);
-        console.log('Brownout is turned on');
+        await axios.post(`${HTTP_API_URL}/brownout/activate`);
+        alert('Brownout is turned on');
     } catch (error) {
+        alert('Brownout coould not be turned on');
         console.log(error);
     }
 
@@ -46,9 +48,10 @@ const ToggleSwitch = () => {
 
   const handleSwitchOff = async () => {
     try {
-        await axios.post(`${HTTP_API_URL}/deactivate`);
-        console.log('Brownout is turned off');
+        await axios.post(`${HTTP_API_URL}/brownout/deactivate`);
+        alert('Brownout is turned off');
     } catch (error) {
+        alert('Brownout could not be turned off');
         console.log(error);
     }
 

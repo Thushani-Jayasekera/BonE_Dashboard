@@ -10,6 +10,9 @@
   .toggle-switch.on {
     background-color: #2196F3;
   }
+  .toggle-switch.off {
+    background-color: #ced2d6;
+  }
   
   .toggle-switch .slider {
     width: 20px;

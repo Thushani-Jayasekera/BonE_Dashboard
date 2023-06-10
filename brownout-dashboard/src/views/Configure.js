@@ -16,26 +16,15 @@
 
 */
 import React from "react";
-// react plugin for creating notifications over the dashboard
-import NotificationAlert from "react-notification-alert";
 
 // reactstrap components
 import {
-  Alert,
-  UncontrolledAlert,
   Button,
   Card,
   CardHeader,
   CardBody,
-  CardTitle,
   Row,
   Col,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  Label,
-  FormGroup,
   Input,
   Table,
   UncontrolledTooltip,
@@ -43,14 +32,17 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Form
+  Form,
+  Alert
 } from "reactstrap";
 
 import axios from 'axios';
+import { master_ip, port } from "../config/config";
+
 
 function Configure() {
 
-  const NORMAL_API_URL = "http://34.100.218.112:8000";
+  const HTTP_API_URL = `http://${master_ip}:${port}`;
 
   const [asr, setASR] = React.useState(0);
   const [asrModalOpen, setASRModalOpen] = React.useState(false);
@@ -88,38 +80,39 @@ function Configure() {
   };
 
   const toggleMASRModal = () => {
-    setMASRModalOpen(!asrModalOpen);
+    setMASRModalOpen(!masrModalOpen);
   };
 
   const togglePolicyModal = () => {
-    setPolicyModalOpen(!asrModalOpen);
+    setPolicyModalOpen(!policyModalOpen);
   };
 
   const toggleUBModal = () => {
-    setUpperBatteryModalOpen(!asrModalOpen);
+    setUpperBatteryModalOpen(!batteryUpperModalOpen);
   };
 
   const toggleLBModal = () => {
-    setLowerBatteryModalOpen(!asrModalOpen);
+    setLowerBatteryModalOpen(!batteryLowerModalOpen);
   };
 
   const toggleSLALatencyModal = () => {
-    setSLAViolationLatencyModalOpen(!asrModalOpen);
+    setSLAViolationLatencyModalOpen(!slaViolationLatencyModalOpen);
   };
 
   const toggleSLAIntervalModal = () => {
-    setSLAIntervaModalOpen(!asrModalOpen);
+    setSLAIntervaModalOpen(!slaIntervalModalOpen);
   };
 
   // get ASR & AMSR value
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const asrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/asr`);
+        const asrResponse = await axios.get(`${HTTP_API_URL}/brownout/variables/asr`);
         const asr = asrResponse.data;
         formValues.asr = asr;
         setASR(asr);
       } catch (error) {
+        alert("Cannot load values. Try again later!");
         console.error('error',error);
       }
     }
@@ -131,11 +124,12 @@ function Configure() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const amsrResponse = await axios.get(`${NORMAL_API_URL}/brownout/variables/amsr`);
+        const amsrResponse = await axios.get(`${HTTP_API_URL}/brownout/variables/amsr`);
         const amsr = amsrResponse.data;
         formValues.masr = amsr;
         setMASR(amsr);
       } catch (error) {
+        alert("Cannot load values. Try again later!");
         console.error('error',error);
       }
     }
@@ -147,11 +141,12 @@ function Configure() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/policy`);
+        const response = await axios.get(`${HTTP_API_URL}/brownout/variables/policy`);
         const policy = response.data;
         formValues.policy = policy;
         setPolicy(policy);
       } catch (error) {
+        alert("Cannot load values. Try again later!");
         console.error('error',error);
       }
     }
@@ -163,11 +158,12 @@ function Configure() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/batteryUpper`);
+        const response = await axios.get(`${HTTP_API_URL}/brownout/variables/batteryUpper`);
         const batteryUpper = response.data;
         formValues.batteryUpper = batteryUpper;
         setBatteryUpper(batteryUpper);
       } catch (error) {
+        alert("Cannot load values. Try again later!");
         console.error('error',error);
       }
     }
@@ -179,11 +175,12 @@ function Configure() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/batteryLower`);
+        const response = await axios.get(`${HTTP_API_URL}/brownout/variables/batteryLower`);
         const batteryLower = response.data;
         formValues.batteryLower = batteryLower;
         setBatteryLower(batteryLower);
       } catch (error) {
+        alert("Cannot load values. Try again later!");
         console.error('error',error);
       }
     }
@@ -195,11 +192,12 @@ function Configure() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/slaViolationLatency`);
+        const response = await axios.get(`${HTTP_API_URL}/brownout/variables/slaViolationLatency`);
         const slaViolationLatency = response.data;
         formValues.slaViolationLatency = slaViolationLatency;
         setSLAViolationLatency(slaViolationLatency);
       } catch (error) {
+        alert("Cannot load values. Try again later!");
         console.error('error',error);
       }
     }
@@ -211,11 +209,12 @@ function Configure() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${NORMAL_API_URL}/brownout/variables/slaInterval`);
+        const response = await axios.get(`${HTTP_API_URL}/brownout/variables/slaInterval`);
         const slaInterval = response.data;
         formValues.slaInterval = slaInterval;
         setSLAInterval(slaInterval);
       } catch (error) {
+        alert("Cannot load values. Try again later!");
         console.error('error',error);
       }
     }
@@ -226,10 +225,12 @@ function Configure() {
   const submitASR = async (event, newASR) => {
     try {
       event.preventDefault();
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/asr`, { 'value': newASR } )
+      await axios.post(`${HTTP_API_URL}/brownout/variables/asr`, { 'value': newASR } )
       setASR(newASR);
       setASRModalOpen(false);
+      alert(`ASR set to ${newASR}!`);
     } catch (error) {
+      alert("Cannot set value. Try again later!")
       console.log(error)
     }
   }
@@ -237,10 +238,12 @@ function Configure() {
   const submitMASR = async (event, newMASR) => {
     try {
       event.preventDefault();
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/masr`, { value: newMASR } )
+      await axios.post(`${HTTP_API_URL}/brownout/variables/amsr`, { value: newMASR } )
       setMASR(newMASR);
       setMASRModalOpen(false);
+      alert(`MASR set to ${newMASR}!`);
     } catch (error) {
+      alert("Cannot set value. Try again later!")
       console.log(error)
     }
   }
@@ -248,10 +251,12 @@ function Configure() {
   const submitPolicy = async (event, newPolicy) => {
     try {
       event.preventDefault();
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/policy`, { value: newPolicy } )
-      setMASR(newPolicy);
+      await axios.post(`${HTTP_API_URL}/brownout/variables/policy`, { value: newPolicy } )
+      setPolicy(newPolicy);
       setPolicyModalOpen(false);
+      alert(`Policy set to ${newPolicy}!`);
     } catch (error) {
+      alert("Cannot set value. Try again later!")
       console.log(error)
     }
   }
@@ -259,10 +264,12 @@ function Configure() {
   const submitBatteryUpper = async (event, newBattery) => {
     try {
       event.preventDefault();
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/batteryUpper`, { value: newBattery } )
+      await axios.post(`${HTTP_API_URL}/brownout/variables/batteryUpper`, { value: newBattery } )
       setBatteryUpper(newBattery);
       setUpperBatteryModalOpen(false);
+      alert(`Higher Battery Threshold set to ${newBattery}!`);
     } catch (error) {
+      alert("Cannot set value. Try again later!")
       console.log(error)
     }
   }
@@ -270,10 +277,12 @@ function Configure() {
   const submitSLAViolationLatency = async (event, newSLA) => {
     try {
       event.preventDefault();
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/slaViolationLatency`, { value: newSLA } )
+      await axios.post(`${HTTP_API_URL}/brownout/variables/slaViolationLatency`, { value: newSLA } )
       setSLAViolationLatency(newSLA);
       setSLAViolationLatencyModalOpen(false);
+      alert(`SLA Violation latency set to ${newSLA}!`);
     } catch (error) {
+      alert("Cannot set value. Try again later!")
       console.log(error)
     }
   }
@@ -281,10 +290,12 @@ function Configure() {
   const submitSLAInterval = async (event, newSLA) => {
     try {
       event.preventDefault();
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/slaInterval`, { value: newSLA } )
+      await axios.post(`${HTTP_API_URL}/brownout/variables/slaInterval`, { value: newSLA } )
       setSLAInterval(newSLA);
       setSLAIntervaModalOpen(false);
+      alert(`SLA  Interval set to ${newSLA}!`);
     } catch (error) {
+      alert("Cannot set value. Try again later!")
       console.log(error)
     }
   }
@@ -292,60 +303,21 @@ function Configure() {
   const submitBatteryLower = async (event, newBattery) => {
     try {
       event.preventDefault();
-      await axios.post(`${NORMAL_API_URL}/brownout/variables/batteryLower`, { value: newBattery } )
+      await axios.post(`${HTTP_API_URL}/brownout/variables/batteryLower`, { value: newBattery } )
       setBatteryLower(newBattery);
       setLowerBatteryModalOpen(false);
+      alert(`Lower Battery Threshold set to ${newBattery}!`);
     } catch (error) {
+      alert("Cannot set value. Try again later!")
       console.log(error)
     }
   }
 
-
-  const notificationAlertRef = React.useRef(null);
-  const notify = (place) => {
-    var color = Math.floor(Math.random() * 5 + 1);
-    var type;
-    switch (color) {
-      case 1:
-        type = "primary";
-        break;
-      case 2:
-        type = "success";
-        break;
-      case 3:
-        type = "danger";
-        break;
-      case 4:
-        type = "warning";
-        break;
-      case 5:
-        type = "info";
-        break;
-      default:
-        break;
-    }
-    var options = {};
-    options = {
-      place: place,
-      message: (
-        <div>
-          <div>
-            Welcome to <b>Black Dashboard React</b> - a beautiful freebie for
-            every web developer.
-          </div>
-        </div>
-      ),
-      type: type,
-      icon: "tim-icons icon-bell-55",
-      autoDismiss: 7,
-    };
-    notificationAlertRef.current.notificationAlert(options);
-  };
   return (
     <>
       <div className="content">
         <div className="react-notification-alert-container">
-          <NotificationAlert ref={notificationAlertRef} />
+
         </div>
         <Row>
         <Col lg="12" md="12">
@@ -395,15 +367,18 @@ function Configure() {
                             <ModalBody>
                     
                               <Form>
-                                <Input type="text" name="policy" value={formValues.policy} onChange={(event) => {
+                                  <select className="form-control" color="black" value={formValues.policy} onChange={(event) => {
                                   setFormValues({...formValues, policy: event.target.value })
-                                }} color="black"
-                                /> 
+                                }} >
+                                    <option value="NISP">NISP</option>
+                                    <option value="LUCF">LUCF</option>
+                                    <option value="HUCF">HUCF</option>
+                                    <option value="RCSP">RCSP</option>
+                                  </select>
                                 <Button onClick={(event) =>submitPolicy(event, formValues.policy)}> Change </Button>
                               </Form>
                             </ModalBody>
                             <ModalFooter>
-                            
                             </ModalFooter>
                         </Modal>
 
@@ -453,7 +428,6 @@ function Configure() {
                               </Form>
                             </ModalBody>
                             <ModalFooter>
-                            
                             </ModalFooter>
                         </Modal>
                       </tr>
@@ -461,7 +435,7 @@ function Configure() {
                       <td>
                           <p className="title">Minimum Accepted Success Rate</p>
                           <p className="text-muted">
-                            Accepted success rate is a QoS paramter. The reccomended default value is 0.60
+                            Accepted minimum success rate is a QoS paramter. The reccomended default value is 0.60
                           </p>
                         </td>
                         <td>
@@ -510,8 +484,8 @@ function Configure() {
                         <td>
                           <p className="title">Slow Request Response Time</p>
                           <p className="text-muted">
-                            A threshold time to consider it a slow request. The default is 250ms. 
-                            i.e. Requests taking more than 250ms to send response are slow requests
+                            A threshold time to consider a request as a slow request. The default is 250ms. 
+                            i.e. Requests taking more than 250ms to send response are slow requests.
                           </p>
                         </td>
                         <td>
@@ -552,7 +526,6 @@ function Configure() {
                               </Form>
                             </ModalBody>
                             <ModalFooter>
-                            
                             </ModalFooter>
                         </Modal>
                       </tr>
@@ -647,7 +620,7 @@ function Configure() {
                                   setFormValues({...formValues, batteryLower: event.target.value })
                                 }} color="black"
                                 /> 
-                                <Button onClick={(event) =>submitSLAInterval(event, formValues.batteryLower)}> Change </Button>
+                                <Button onClick={(event) =>submitBatteryLower(event, formValues.batteryLower)}> Change </Button>
                               </Form>
                             </ModalBody>
                             <ModalFooter>
@@ -696,7 +669,7 @@ function Configure() {
                                   setFormValues({...formValues, batteryUpper: event.target.value })
                                 }} color="black"
                                 /> 
-                                <Button onClick={(event) =>submitSLAInterval(event, formValues.batteryUpper)}> Change </Button>
+                                <Button onClick={(event) =>submitBatteryUpper(event, formValues.batteryUpper)}> Change </Button>
                               </Form>
                             </ModalBody>
                             <ModalFooter>

@@ -38,8 +38,7 @@ function Footer() {
           </NavItem>
         </Nav>
         <div className="copyright">
-          © {new Date().getFullYear()} made with{" "}
-          <i className="tim-icons icon-heart-2" /> by{" "}
+          © {new Date().getFullYear()} . Made by{" "}
           <a>
             Cloud Genesis
           </a>{" "}

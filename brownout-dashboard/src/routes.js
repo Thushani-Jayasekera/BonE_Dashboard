@@ -24,26 +24,23 @@ var routes = [
   {
     path: "/dashboard",
     name: "Dashboard",
-    rtlName: "لوحة القيادة",
     icon: "tim-icons icon-chart-pie-36",
     component: <Dashboard />,
-    layout: "/admin",
+    layout: "/BonE",
   },
   {
     path: "/configure",
     name: "Configure",
-    rtlName: "إخطارات",
     icon: "tim-icons icon-bell-55",
     component: <Configure />,
-    layout: "/admin",
+    layout: "/BonE",
   },
   {
     path: "/cluster",
     name: "Cluster",
-    rtlName: "قائمة الجدول",
     icon: "tim-icons icon-puzzle-10",
     component: <Cluster />,
-    layout: "/admin",
+    layout: "/BonE",
   },
 
 ];

@@ -25,16 +25,16 @@ import {
   requestsChart,
 } from "variables/charts.js";
 
-import Toggle from 'react-styled-toggle';
-
 import { GetTime } from "variables/util.js";
 import axios from 'axios';
 import ToggleSwitch from "components/ToggleSwitch/ToggleSwitch";
 
-function Dashboard(props) {
+import { master_ip, port } from "../config/config";
 
-  const API_URL = "ws://34.100.218.112:8000";
-  const NORMAL_API_URL = "http://34.100.218.112:8000";
+function Dashboard() {
+
+  const API_URL = `ws://${master_ip}:${port}`;
+  const NORMAL_API_URL = `http://${master_ip}:${port}`;
   const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
   const setCGLabel = (name) => {
     setclusterGraphLabel(name);
@@ -280,6 +280,8 @@ function Dashboard(props) {
     fetchData();
     return
   });
+
+  const [color, setcolor] = React.useState("navbar-transparent");
 
   return (
     <>

@@ -1,17 +1,18 @@
 import React from "react";
 import './ToggleSwitch.css';
 import axios from 'axios';
+import { master_ip, port } from "config/config";
 
 const ToggleSwitch = () => {
 
-  const NORMAL_API_URL = "http://34.100.218.112:8000";
+  const HTTP_API_URL = `http://${master_ip}:${port}`;
 
   const [isOn, setIsOn] = React.useState(false);
 
   React.useEffect(()=> {
     const fetchData = async () => {
       try {
-        const brownoutResponse = await axios.get(`${NORMAL_API_URL}/`);
+        const brownoutResponse = await axios.get(`${HTTP_API_URL}/`);
         console.log(brownoutResponse)
         const state = brownoutResponse.data;
         setIsOn(true);
@@ -35,7 +36,7 @@ const ToggleSwitch = () => {
 
   const handleSwitchOn = async () => {
     try{
-        await axios.post(`${NORMAL_API_URL}/activate`);
+        await axios.post(`${HTTP_API_URL}/activate`);
         console.log('Brownout is turned on');
     } catch (error) {
         console.log(error);
@@ -45,7 +46,7 @@ const ToggleSwitch = () => {
 
   const handleSwitchOff = async () => {
     try {
-        await axios.post(`${NORMAL_API_URL}/deactivate`);
+        await axios.post(`${HTTP_API_URL}/deactivate`);
         console.log('Brownout is turned off');
     } catch (error) {
         console.log(error);

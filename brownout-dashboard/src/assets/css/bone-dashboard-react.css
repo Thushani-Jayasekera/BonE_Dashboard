@@ -15388,6 +15388,8 @@ img {
 .navbar.navbar-absolute {
   position: absolute;
   z-index: 1050;
+  padding-bottom: 20px;
+  padding-top: 20px;
 }
 .navbar.navbar-transparent {
   background: transparent !important;

@@ -14,7 +14,6 @@ import {
   CardTitle,
   Row,
   Col,
-  ButtonToggle,
 } from "reactstrap";
 
 // core components
@@ -246,7 +245,6 @@ function Dashboard() {
       try {
         const asrResponse = await axios.get(`${HTTP_API_URL }/brownout/variables/asr`);
         const asr = asrResponse.data;
-        console.log(asr);
         setASR(asr);
       } catch (error) {
         console.error('error',error);
@@ -262,7 +260,6 @@ function Dashboard() {
       try {
         const amsrResponse = await axios.get(`${HTTP_API_URL }/brownout/variables/amsr`);
         const amsr = amsrResponse.data;
-        console.log(amsr);
         setMASR(amsr);
       } catch (error) {
         console.error('error',error);

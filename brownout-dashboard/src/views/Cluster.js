@@ -12,8 +12,11 @@ import {
 } from "reactstrap";
 
 import { GetDifferenceArray } from "variables/util.js";
+import { master_ip, port } from "../config/config";
 
 function Cluster() {
+  const WS_API_URL = `ws://${master_ip}:${port}`;
+
   const [deploymentList, setDeploymentList] = React.useState([{"Name": "No deployments", "Replicas": 0,}]);
   const setDeploymentData = (data) => {
     setDeploymentList(prevDepData => {
@@ -36,7 +39,7 @@ function Cluster() {
   };
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/nodes/list');
+    const ws = new WebSocket(`${WS_API_URL}/metrics/nodes/list`);
     ws.addEventListener('message', (event) => {
       let nodeData = JSON.parse(event.data);
       setNodeData(nodeData);
@@ -45,7 +48,7 @@ function Cluster() {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/deployments');
+    const ws = new WebSocket(`${WS_API_URL}/metrics/deployments`);
     ws.addEventListener('message', (event) => {
       let depData = JSON.parse(event.data);
       setDeploymentData(depData)

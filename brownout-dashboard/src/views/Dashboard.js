@@ -24,9 +24,16 @@ import {
   requestsChart,
 } from "variables/charts.js";
 
-import { GetTime } from "variables/util.js"
+import { GetTime } from "variables/util.js";
+import axios from 'axios';
+import ToggleSwitch from "components/ToggleSwitch/ToggleSwitch";
 
-function Dashboard(props) {
+import { master_ip, port } from "../config/config";
+
+function Dashboard() {
+
+  const WS_API_URL = `ws://${master_ip}:${port}`;
+  const HTTP_API_URL = `http://${master_ip}:${port}`;
   const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
   const setCGLabel = (name) => {
     setclusterGraphLabel(name);
@@ -35,6 +42,16 @@ function Dashboard(props) {
   const [podCount, setPodCount] = React.useState(0);
   const setPC = (data) => {
     setPodCount(data["count"]);
+  };
+
+  const [asr, setASR] = React.useState(0);
+  const [masr, setMASR] = React.useState(0);
+  const [running, setRunning] = React.useState(false);
+  const setBStatus = (data) => {
+    setRunning(prevRunningData => {
+      const tempRunningData = data['brownout_active'];
+      return tempRunningData;
+    });
   };
 
   const [nodeCount, setNodeCount] = React.useState(0);
@@ -172,7 +189,7 @@ function Dashboard(props) {
   };
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/battery');
+    const ws = new WebSocket(`${WS_API_URL}/metrics/battery`);
     ws.addEventListener('message', (event) => {
       let batteryData = JSON.parse(event.data);
       setBPData(batteryData);
@@ -181,7 +198,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/power');
+    const ws = new WebSocket(`${WS_API_URL}/metrics/power`);
     ws.addEventListener('message', (event) => {
       let powerData = JSON.parse(event.data);
       setCPData(powerData);
@@ -190,7 +207,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/pods');
+    const ws = new WebSocket(`${WS_API_URL}/metrics/pods`);
     ws.addEventListener('message', (event) => {
       let podData = JSON.parse(event.data);
       setCCPUData(podData);
@@ -200,7 +217,7 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/sla');
+    const ws = new WebSocket(`${WS_API_URL}/metrics/sla`);
     ws.addEventListener('message', (event) => {
       try {
         let srData = JSON.parse(event.data);
@@ -214,13 +231,54 @@ function Dashboard(props) {
   },[]);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://35.244.10.131:8000/metrics/nodes/list');
+    const ws = new WebSocket(`${WS_API_URL}/metrics/nodes/list`);
     ws.addEventListener('message', (event) => {
       let nodeData = JSON.parse(event.data);
       setNC(nodeData);
     });
     return () => ws.close();
   },[]);
+
+  // get ASR & AMSR value
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const asrResponse = await axios.get(`${HTTP_API_URL }/brownout/variables/asr`);
+        const asr = asrResponse.data;
+        setASR(asr);
+      } catch (error) {
+        console.error('error',error);
+      }
+    }
+    fetchData();
+    return
+
+  },[]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const amsrResponse = await axios.get(`${HTTP_API_URL }/brownout/variables/amsr`);
+        const amsr = amsrResponse.data;
+        setMASR(amsr);
+      } catch (error) {
+        console.error('error',error);
+      }
+    }
+    fetchData();
+    return
+  },[]);
+
+  React.useEffect(() => {
+    const ws = new WebSocket(`${WS_API_URL}/brownout/status`);
+    ws.addEventListener('message', (event) => {
+      let brownoutData = JSON.parse(event.data);
+      setBStatus(brownoutData);
+    });
+    return () => ws.close();
+  },[]);
+
+  const [color, setcolor] = React.useState("navbar-transparent");
 
   return (
     <>
@@ -229,7 +287,13 @@ function Dashboard(props) {
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>
                 <CardTitle>Brownout Controller</CardTitle>
-                <Button color="success" style={{alignContent:'center', alignItems:'center'}}>Running</Button>
+                <ToggleSwitch />
+            </CardBody>
+        </Card>
+        <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
+            <CardBody>
+                <CardTitle>Brownout Status</CardTitle>
+                <Button color="success" style={{alignContent:'center', alignItems:'center'}}>{ running ? "Running" : "Stopped"}</Button>
             </CardBody>
         </Card>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
@@ -338,9 +402,9 @@ function Dashboard(props) {
               <CardHeader>
                 <h5 className="card-category">Success Rate</h5>
                 <CardTitle tag="h3">
-                  <i className="tim-icons icon-send text-success" /> ASR  - 70%  
+                  <i className="tim-icons icon-send text-success" /> ASR  - {asr}
                   <br/>
-                  <i className="tim-icons icon-send text-success" /> MASR - 60%
+                  <i className="tim-icons icon-send text-success" /> MASR - {masr}
                 </CardTitle>
               </CardHeader>
               <CardBody>

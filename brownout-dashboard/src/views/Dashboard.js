@@ -24,222 +24,30 @@ import {
   requestsChart,
 } from "variables/charts.js";
 
-import { GetTime } from "variables/util.js";
 import axios from 'axios';
 import ToggleSwitch from "components/ToggleSwitch/ToggleSwitch";
 
 import { master_ip, port } from "../config/config";
 
-function Dashboard() {
+function Dashboard(props) {
 
-  const WS_API_URL = `ws://${master_ip}:${port}`;
   const HTTP_API_URL = `http://${master_ip}:${port}`;
   const [clusterGraphLabel, setclusterGraphLabel] = React.useState("power");
   const setCGLabel = (name) => {
     setclusterGraphLabel(name);
   };
-
-  const [podCount, setPodCount] = React.useState(0);
-  const setPC = (data) => {
-    setPodCount(data["count"]);
-  };
-
   const [asr, setASR] = React.useState(0);
   const [masr, setMASR] = React.useState(0);
-  const [running, setRunning] = React.useState(false);
-  const setBStatus = (data) => {
-    setRunning(prevRunningData => {
-      const tempRunningData = data['brownout_active'];
-      return tempRunningData;
-    });
-  };
 
-  const [nodeCount, setNodeCount] = React.useState(0);
-  const setNC = (data) => {
-    setNodeCount(data["nodes_active"].length);
-  };
+  const running = props.running;
+  const podCount = props.podCount;
+  const nodeCount = props.nodeCount;
+  const batteryPercentage = props.batteryPercentage;
+  const clusterPowerData = props.clusterPowerData;
+  const clusterCPUData = props.clusterCPUData;
+  const successRateData = props.successRateData;
+  const requestsData = props.requestsData;
 
-  const [batteryPercentage, setBatteryPercentage] = React.useState(batteryChart.chart);
-  const setBPData = (data) => {
-    setBatteryPercentage(prevBatteryData => {
-      const tempBatteryData = {
-        labels: [...prevBatteryData.labels],
-        datasets: [
-          Object.assign({}, prevBatteryData.datasets[0], {
-            data: [...prevBatteryData.datasets[0].data],
-          }),
-        ],
-      };
-    
-      tempBatteryData.labels.shift();
-      tempBatteryData.labels.push(GetTime(data["timestamp"]));
-      tempBatteryData.datasets[0].data.shift();
-      tempBatteryData.datasets[0].data.push(data["battery"]);
-    
-      return tempBatteryData;
-    });
-  };
-
-  const [clusterPowerData, setClusterPowerData] = React.useState({
-    labels: clusterChart.powerLabels, 
-    datasets: [Object.assign({}, 
-      clusterChart.power, 
-      clusterChart.properties, 
-      {data: clusterChart.powerData}
-      )],
-    });
-  const setCPData = (data) => {
-    setClusterPowerData(prevClusterPowerData => {
-      const tempClusterPowerData = {
-        labels: [...prevClusterPowerData.labels],
-        datasets: [
-          Object.assign({}, prevClusterPowerData.datasets[0], {
-            data: [...prevClusterPowerData.datasets[0].data],
-          }),
-        ],
-      };
-    
-      tempClusterPowerData.labels.shift();
-      tempClusterPowerData.labels.push(GetTime(data["timestamp"]));
-      tempClusterPowerData.datasets[0].data.shift();
-      tempClusterPowerData.datasets[0].data.push(data["power"]);
-    
-      return tempClusterPowerData;
-    });
-  };
-
-  const [clusterCPUData, setClusterCPUData] = React.useState({
-    labels: clusterChart.cpuLabels, 
-    datasets: [Object.assign({}, 
-      clusterChart.cpu, 
-      clusterChart.properties, 
-      {data: clusterChart.cpuData}
-      )],
-    });
-  const setCCPUData = (data) => {
-    setClusterCPUData(prevClusterCPUData => {
-      const tempClusterCPUData = {
-        labels: [...prevClusterCPUData.labels],
-        datasets: [
-          Object.assign({}, prevClusterCPUData.datasets[0], {
-            data: [...prevClusterCPUData.datasets[0].data],
-          }),
-        ],
-      };
-      
-      tempClusterCPUData.labels.shift();
-      tempClusterCPUData.labels.push(GetTime(data["timestamp"]));
-      tempClusterCPUData.datasets[0].data.shift();
-      tempClusterCPUData.datasets[0].data.push(data["cpu_total"]);
-      
-      return tempClusterCPUData;
-    });
-  };
-
-  const [successRateData, setSuccessRateData] = React.useState(srChart.chart);
-  const setSRData = (data) => {
-    setSuccessRateData(prevSRData => {
-      const tempSRData = {
-        labels: [...prevSRData.labels],
-        datasets: [
-          Object.assign({}, prevSRData.datasets[0], {
-            data: [...prevSRData.datasets[0].data],
-          }),
-        ],
-      };
-    
-      tempSRData.labels.shift();
-      tempSRData.labels.push(GetTime(data["timestamp"]));
-      tempSRData.datasets[0].data.shift();
-      tempSRData.datasets[0].data.push(data["sla_success"] * 100);
-    
-      return tempSRData;
-    });
-  };
-
-  const [requestsData, setRequestsData] = React.useState(requestsChart.chart);
-  const setReqData = (data) => {
-    setRequestsData(prevReqData => {
-      const tempReqData = {
-        labels: [...prevReqData.labels],
-        datasets: [
-          Object.assign({}, prevReqData.datasets[0], {
-            data: [...prevReqData.datasets[0].data], 
-          }),
-          Object.assign({}, prevReqData.datasets[1], {
-            data: [...prevReqData.datasets[1].data], 
-          }),
-          Object.assign({}, prevReqData.datasets[2], {
-            data: [...prevReqData.datasets[2].data], 
-          }),
-        ],
-      };
-    
-      tempReqData.labels.shift();
-      tempReqData.labels.push(GetTime(data["timestamp"]));
-      tempReqData.datasets[0].data.shift();
-      tempReqData.datasets[0].data.push(data["tot_req"]);
-      tempReqData.datasets[1].data.shift();
-      tempReqData.datasets[1].data.push(data["slow_req"]);
-      tempReqData.datasets[2].data.shift();
-      tempReqData.datasets[2].data.push(data["err_req"]);
-    
-      return tempReqData;
-    });
-  };
-
-  React.useEffect(() => {
-    const ws = new WebSocket(`${WS_API_URL}/metrics/battery`);
-    ws.addEventListener('message', (event) => {
-      let batteryData = JSON.parse(event.data);
-      setBPData(batteryData);
-    });
-    return () => ws.close();
-  },[]);
-
-  React.useEffect(() => {
-    const ws = new WebSocket(`${WS_API_URL}/metrics/power`);
-    ws.addEventListener('message', (event) => {
-      let powerData = JSON.parse(event.data);
-      setCPData(powerData);
-    });
-    return () => ws.close();
-  },[]);
-
-  React.useEffect(() => {
-    const ws = new WebSocket(`${WS_API_URL}/metrics/pods`);
-    ws.addEventListener('message', (event) => {
-      let podData = JSON.parse(event.data);
-      setCCPUData(podData);
-      setPC(podData);
-    });
-    return () => ws.close();
-  },[]);
-
-  React.useEffect(() => {
-    const ws = new WebSocket(`${WS_API_URL}/metrics/sla`);
-    ws.addEventListener('message', (event) => {
-      try {
-        let srData = JSON.parse(event.data);
-        setSRData(srData);
-        setReqData(srData);
-      } catch (error) {
-        console.log("Error parsing JSON:", error);
-      }
-    });
-    return () => ws.close();
-  },[]);
-
-  React.useEffect(() => {
-    const ws = new WebSocket(`${WS_API_URL}/metrics/nodes/list`);
-    ws.addEventListener('message', (event) => {
-      let nodeData = JSON.parse(event.data);
-      setNC(nodeData);
-    });
-    return () => ws.close();
-  },[]);
-
-  // get ASR & AMSR value
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -268,17 +76,6 @@ function Dashboard() {
     fetchData();
     return
   },[]);
-
-  React.useEffect(() => {
-    const ws = new WebSocket(`${WS_API_URL}/brownout/status`);
-    ws.addEventListener('message', (event) => {
-      let brownoutData = JSON.parse(event.data);
-      setBStatus(brownoutData);
-    });
-    return () => ws.close();
-  },[]);
-
-  const [color, setcolor] = React.useState("navbar-transparent");
 
   return (
     <>

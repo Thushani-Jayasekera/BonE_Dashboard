@@ -23,7 +23,7 @@ import axios from 'axios';
 import { master_ip, port } from "../config/config";
 
 
-function Configure() {
+function Configure(props) {
 
   const HTTP_API_URL = `http://${master_ip}:${port}`;
 

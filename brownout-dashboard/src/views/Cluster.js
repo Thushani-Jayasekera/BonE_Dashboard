@@ -14,7 +14,7 @@ import {
 import { GetDifferenceArray } from "variables/util.js";
 import { master_ip, port } from "../config/config";
 
-function Cluster() {
+function Cluster(props) {
   const WS_API_URL = `ws://${master_ip}:${port}`;
 
   const [deploymentList, setDeploymentList] = React.useState([{"Name": "No deployments", "Replicas": 0,}]);

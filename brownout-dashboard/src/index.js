@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
-import AdminLayout from "layouts/Admin/Admin.js";
+import BonELayout from "layouts/bone/BonE.js";
 
 
 import "assets/scss/bone-dashboard-react.scss";
@@ -19,7 +19,7 @@ root.render(
     <BackgroundColorWrapper>
       <BrowserRouter>
         <Routes>
-          <Route path="/BonE/*" element={<AdminLayout />} />
+          <Route path="/BonE/*" element={<BonELayout />} />
           <Route
             path="*"
             element={<Navigate to="/BonE/dashboard" replace />}

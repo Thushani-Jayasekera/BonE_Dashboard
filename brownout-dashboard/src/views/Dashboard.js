@@ -28,6 +28,7 @@ import axios from 'axios';
 import ToggleSwitch from "components/ToggleSwitch/ToggleSwitch";
 
 import { master_ip, port } from "../config/config";
+import { ToastContainer } from "react-toastify";
 
 function Dashboard(props) {
 
@@ -80,6 +81,7 @@ function Dashboard(props) {
   return (
     <>
       <div className="content">
+       
         <Row>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>

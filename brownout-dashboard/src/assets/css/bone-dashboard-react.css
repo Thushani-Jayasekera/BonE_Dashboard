@@ -19981,10 +19981,9 @@ textarea.form-control {
 }
 
 .card-tasks {
-  height: 473px;
+  height: 600px;
 }
 .card-tasks .table-full-width {
-  max-height: 410px;
   position: relative;
 }
 .card-tasks .card-header .title {

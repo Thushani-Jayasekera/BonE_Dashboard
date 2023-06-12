@@ -22,8 +22,13 @@ import {
 import axios from 'axios';
 import { master_ip, port } from "../config/config";
 
+// react plugin for creating notifications over the dashboard
+import NotificationAlert from "react-notification-alert";
+
 
 function Configure() {
+
+  
 
   const HTTP_API_URL = `http://${master_ip}:${port}`;
 
@@ -95,7 +100,7 @@ function Configure() {
         formValues.asr = asr;
         setASR(asr);
       } catch (error) {
-        alert("Cannot load values. Try again later!");
+        notify("Cannot load values. Try again later!", 0);
         console.error('error',error);
       }
     }
@@ -112,7 +117,7 @@ function Configure() {
         formValues.masr = amsr;
         setMASR(amsr);
       } catch (error) {
-        alert("Cannot load values. Try again later!");
+        notify("Cannot load values. Try again later!", 0);
         console.error('error',error);
       }
     }
@@ -129,7 +134,7 @@ function Configure() {
         formValues.policy = policy;
         setPolicy(policy);
       } catch (error) {
-        alert("Cannot load values. Try again later!");
+        notify("Cannot load values. Try again later!", 0);
         console.error('error',error);
       }
     }
@@ -146,7 +151,7 @@ function Configure() {
         formValues.batteryUpper = batteryUpper;
         setBatteryUpper(batteryUpper);
       } catch (error) {
-        alert("Cannot load values. Try again later!");
+        notify("Cannot load values. Try again later!", 0);
         console.error('error',error);
       }
     }
@@ -163,7 +168,7 @@ function Configure() {
         formValues.batteryLower = batteryLower;
         setBatteryLower(batteryLower);
       } catch (error) {
-        alert("Cannot load values. Try again later!");
+        notify("Cannot load values. Try again later!", 0);
         console.error('error',error);
       }
     }
@@ -180,7 +185,7 @@ function Configure() {
         formValues.slaViolationLatency = slaViolationLatency;
         setSLAViolationLatency(slaViolationLatency);
       } catch (error) {
-        alert("Cannot load values. Try again later!");
+        notify("Cannot load values. Try again later!", 0);
         console.error('error',error);
       }
     }
@@ -197,7 +202,7 @@ function Configure() {
         formValues.slaInterval = slaInterval;
         setSLAInterval(slaInterval);
       } catch (error) {
-        alert("Cannot load values. Try again later!");
+        notify("Cannot load values. Try again later!", 0);
         console.error('error',error);
       }
     }
@@ -211,9 +216,9 @@ function Configure() {
       await axios.post(`${HTTP_API_URL}/brownout/variables/asr`, { 'value': newASR } )
       setASR(newASR);
       setASRModalOpen(false);
-      alert(`ASR set to ${newASR}!`);
+      notify(`ASR set to ${newASR}!`, 1);
     } catch (error) {
-      alert("Cannot set value. Try again later!")
+      notify("Cannot set value. Try again later!", 0)
       console.log(error)
     }
   }
@@ -224,9 +229,9 @@ function Configure() {
       await axios.post(`${HTTP_API_URL}/brownout/variables/amsr`, { value: newMASR } )
       setMASR(newMASR);
       setMASRModalOpen(false);
-      alert(`MASR set to ${newMASR}!`);
+      notify(`MASR set to ${newMASR}!`, 1);
     } catch (error) {
-      alert("Cannot set value. Try again later!")
+      notify("Cannot set value. Try again later!", 0)
       console.log(error)
     }
   }
@@ -237,9 +242,9 @@ function Configure() {
       await axios.post(`${HTTP_API_URL}/brownout/variables/policy`, { value: newPolicy } )
       setPolicy(newPolicy);
       setPolicyModalOpen(false);
-      alert(`Policy set to ${newPolicy}!`);
+      notify(`Policy set to ${newPolicy}!`, 1);
     } catch (error) {
-      alert("Cannot set value. Try again later!")
+      notify("Cannot set value. Try again later!", 0)
       console.log(error)
     }
   }
@@ -250,9 +255,9 @@ function Configure() {
       await axios.post(`${HTTP_API_URL}/brownout/variables/batteryUpper`, { value: newBattery } )
       setBatteryUpper(newBattery);
       setUpperBatteryModalOpen(false);
-      alert(`Higher Battery Threshold set to ${newBattery}!`);
+      notify(`Higher Battery Threshold set to ${newBattery}!`, 1);
     } catch (error) {
-      alert("Cannot set value. Try again later!")
+      notify("Cannot set value. Try again later!", 0)
       console.log(error)
     }
   }
@@ -263,9 +268,9 @@ function Configure() {
       await axios.post(`${HTTP_API_URL}/brownout/variables/slaViolationLatency`, { value: newSLA } )
       setSLAViolationLatency(newSLA);
       setSLAViolationLatencyModalOpen(false);
-      alert(`SLA Violation latency set to ${newSLA}!`);
+      notify(`SLA Violation latency set to ${newSLA}!`, 1);
     } catch (error) {
-      alert("Cannot set value. Try again later!")
+      notify("Cannot set value. Try again later!", 0)
       console.log(error)
     }
   }
@@ -276,9 +281,9 @@ function Configure() {
       await axios.post(`${HTTP_API_URL}/brownout/variables/slaInterval`, { value: newSLA } )
       setSLAInterval(newSLA);
       setSLAIntervaModalOpen(false);
-      alert(`SLA  Interval set to ${newSLA}!`);
+      notify(`SLA  Interval set to ${newSLA}!`, 1);
     } catch (error) {
-      alert("Cannot set value. Try again later!")
+      notify("Cannot set value. Try again later!", 0)
       console.log(error)
     }
   }
@@ -289,18 +294,47 @@ function Configure() {
       await axios.post(`${HTTP_API_URL}/brownout/variables/batteryLower`, { value: newBattery } )
       setBatteryLower(newBattery);
       setLowerBatteryModalOpen(false);
-      alert(`Lower Battery Threshold set to ${newBattery}!`);
+      notify(`Lower Battery Threshold set to ${newBattery}!`, 1);
     } catch (error) {
-      alert("Cannot set value. Try again later!")
+      notify("Cannot set value. Try again later!", 0)
       console.log(error)
     }
   }
 
+  const notificationAlertRef = React.useRef(null);
+  const notify = (message , color) => {
+    var type;
+    switch (color) {
+      case 1:
+        type = "success";
+        break;
+      case 0:
+        type = "danger";
+        break;
+      default:
+        break;
+    }
+    var options = {};
+    options = {
+      place: "tr",
+      message: (
+        <div>
+          <div>
+            {message}
+          </div>
+        </div>
+      ),
+      type: type,
+      icon: "tim-icons icon-bell-55",
+      autoDismiss: 7,
+    };
+    notificationAlertRef.current.notificationAlert(options);
+  }
   return (
     <>
       <div className="content">
-        <div className="react-notification-alert-container">
-
+      <div className="react-notification-alert-container">
+          <NotificationAlert ref={notificationAlertRef} />
         </div>
         <Row>
         <Col lg="12" md="12">

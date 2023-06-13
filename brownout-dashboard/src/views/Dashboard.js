@@ -28,7 +28,6 @@ import axios from 'axios';
 import ToggleSwitch from "components/ToggleSwitch/ToggleSwitch";
 
 import { master_ip, port } from "../config/config";
-import { ToastContainer } from "react-toastify";
 
 function Dashboard(props) {
 

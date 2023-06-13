@@ -3,6 +3,9 @@ import './ToggleSwitch.css';
 import axios from 'axios';
 import { master_ip, port } from "config/config";
 
+// react plugin for creating notifications over the dashboard
+import NotificationAlert from "react-notification-alert";
+
 const ToggleSwitch = () => {
 
   const HTTP_API_URL = `http://${master_ip}:${port}`;
@@ -37,9 +40,9 @@ const ToggleSwitch = () => {
   const handleSwitchOn = async () => {
     try{
         await axios.post(`${HTTP_API_URL}/brownout/activate`);
-        alert('Brownout is turned on');
+        notify('Brownout is turned on', 1);
     } catch (error) {
-        alert('Brownout coould not be turned on');
+      notify('Brownout coould not be turned on',0);
         console.log(error);
     }
 
@@ -48,18 +51,53 @@ const ToggleSwitch = () => {
   const handleSwitchOff = async () => {
     try {
         await axios.post(`${HTTP_API_URL}/brownout/deactivate`);
-        alert('Brownout is turned off');
+        notify('Brownout is turned off', 1);
     } catch (error) {
-        alert('Brownout could not be turned off');
+      notify('Brownout could not be turned off',0);
         console.log(error);
     }
 
   };
 
+  const notificationAlertRef = React.useRef(null);
+  const notify = (message , color) => {
+    var type;
+    switch (color) {
+      case 1:
+        type = "success";
+        break;
+      case 0:
+        type = "danger";
+        break;
+      default:
+        break;
+    }
+    var options = {};
+    options = {
+      place: "tr",
+      message: (
+        <div>
+          <div>
+            {message}
+          </div>
+        </div>
+      ),
+      type: type,
+      icon: "tim-icons icon-bell-55",
+      autoDismiss: 7,
+    };
+    notificationAlertRef.current.notificationAlert(options);
+  }
+
   return (
+    <>
+    <div className="react-notification-alert-container">
+    <NotificationAlert ref={notificationAlertRef} />
+  </div>
     <div className={`toggle-switch ${isOn ? 'on' : 'off'}`} onClick={handleToggle}>
       <div className="slider"></div>
     </div>
+    </>
   );
 };
 

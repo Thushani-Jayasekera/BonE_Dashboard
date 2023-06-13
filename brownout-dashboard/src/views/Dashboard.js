@@ -80,6 +80,7 @@ function Dashboard(props) {
   return (
     <>
       <div className="content">
+       
         <Row>
         <Card style={{width: '17rem', alignContent: 'center', alignItems: 'center', margin: '1rem'}}>
             <CardBody>

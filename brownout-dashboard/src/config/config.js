@@ -1,4 +1,4 @@
-const master_ip = "35.244.23.34";
+const master_ip = "34.93.246.238";
 const port = "8000";
 
 module.exports = {

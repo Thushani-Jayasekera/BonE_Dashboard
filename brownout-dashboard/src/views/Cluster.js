@@ -1,20 +1,3 @@
-/*!
-
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React from "react";
 
 // reactstrap components
@@ -28,7 +11,51 @@ import {
   Col,
 } from "reactstrap";
 
-function Cluster() {
+import { GetDifferenceArray } from "variables/util.js";
+import { master_ip, port } from "../config/config";
+
+function Cluster(props) {
+  const WS_API_URL = `ws://${master_ip}:${port}`;
+
+  const [deploymentList, setDeploymentList] = React.useState([{"Name": "No deployments", "Replicas": 0,}]);
+  const setDeploymentData = (data) => {
+    setDeploymentList(prevDepData => {
+      const tempDepData = data["deployment_list"];
+    
+      return tempDepData;
+    });
+  };
+
+  const [nodeList, setNodeList] = React.useState({active: ["No Active Nodes"], idle: ["No Idle Nodes"],});
+  const setNodeData = (data) => {
+    setNodeList(prevNodeData => {
+      const tempNodeData = {
+        active: data["nodes_active"],
+        idle: GetDifferenceArray(data["nodes_all"], data["nodes_active"]),
+      };
+    
+      return tempNodeData;
+    });
+  };
+
+  React.useEffect(() => {
+    const ws = new WebSocket(`${WS_API_URL}/metrics/nodes/list`);
+    ws.addEventListener('message', (event) => {
+      let nodeData = JSON.parse(event.data);
+      setNodeData(nodeData);
+    });
+    return () => ws.close();
+  },[]);
+
+  React.useEffect(() => {
+    const ws = new WebSocket(`${WS_API_URL}/metrics/deployments`);
+    ws.addEventListener('message', (event) => {
+      let depData = JSON.parse(event.data);
+      setDeploymentData(depData)
+    });
+    return () => ws.close();
+  },[]);
+
   return (
     <>
       <div className="content">
@@ -44,45 +71,49 @@ function Cluster() {
                     <tr>
                       <th>Deployment Name</th>
                       <th>Number of Replicas</th>
-
                     </tr>
                   </thead>
                   <tbody>
+                    {deploymentList.map((deployment, index) => (
+                      <tr>
+                        <td>{deployment["Name"]}</td>
+                        <td>{deployment["Replicas"]}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </CardBody>
+            </Card>
+          </Col>
+          
+        </Row>
+        <Row>
+          <Col md="12">
+            <Card>
+              <CardHeader>
+                <CardTitle tag="h4">Cluster Nodes</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <Table className="tablesorter" responsive>
+                  <thead className="text-primary">
                     <tr>
-                      <td>Dakota Rice</td>
-                      <td>Niger</td>
-
+                      <th>Node Name</th>
+                      <th>Active Status</th>
                     </tr>
-                    <tr>
-                      <td>Minerva Hooper</td>
-                      <td>Curaçao</td>
-
-                    </tr>
-                    <tr>
-                      <td>Sage Rodriguez</td>
-                      <td>Netherlands</td>
-
-                    </tr>
-                    <tr>
-                      <td>Philip Chaney</td>
-                      <td>Korea, South</td>
-
-                    </tr>
-                    <tr>
-                      <td>Doris Greene</td>
-                      <td>Malawi</td>
-
-                    </tr>
-                    <tr>
-                      <td>Mason Porter</td>
-                      <td>Chile</td>
-
-                    </tr>
-                    <tr>
-                      <td>Jon Porter</td>
-                      <td>Portugal</td>
-
-                    </tr>
+                  </thead>
+                  <tbody>
+                    {nodeList.active.map((node, index) => (
+                      <tr>
+                        <td>{node}</td>
+                        <td>Active</td>
+                      </tr>
+                    ))}
+                      {nodeList.idle.map((node, index) => (
+                      <tr>
+                        <td>{node}</td>
+                        <td>Idle</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </Table>
               </CardBody>
@@ -91,6 +122,7 @@ function Cluster() {
           
         </Row>
       </div>
+      
     </>
   );
 }
